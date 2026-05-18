@@ -1,0 +1,5 @@
+# Pipeline RAG — dependencias previstas (Capa 3).
+# Aún no se instalan automáticamente: el pipeline es un stub.
+sentence-transformers>=3.0
+sqlite-vec>=0.1.6
+pypdf>=5.0

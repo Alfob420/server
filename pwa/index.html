@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0a0e12" />
+  <title>SURVIVAL MESH</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="bar">
+    <span class="logo">▚ SURVIVAL&nbsp;MESH</span>
+    <span id="status" class="status status--down">● OFFLINE</span>
+  </header>
+
+  <main id="log" class="log">
+    <div class="msg msg--sys">
+      <span class="who">SISTEMA</span>
+      <p>Terminal de supervivencia. Asistente educacional — no reemplaza
+      criterio profesional. El motor LLM está en modo stub.</p>
+    </div>
+  </main>
+
+  <form id="form" class="composer">
+    <input id="input" type="text" autocomplete="off"
+           placeholder="Consultá al nodo..." />
+    <button type="submit">ENVIAR</button>
+  </form>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+{
+  "name": "Survival Mesh",
+  "short_name": "SurvivalMesh",
+  "description": "Terminal de supervivencia con IA offline y mesh descentralizada.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0e12",
+  "theme_color": "#0a0e12",
+  "icons": []
+}

@@ -1,0 +1,27 @@
+# Rust
+/api/target/
+**/*.rs.bk
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Modelos y datos pesados (no versionar)
+*.gguf
+*.bin
+*.safetensors
+rag/corpus/*
+!rag/corpus/.gitkeep
+rag/*.db
+rag/*.sqlite
+
+# Node / PWA
+node_modules/
+
+# OS / editores
+.DS_Store
+*.swp
+.idea/
+.vscode/

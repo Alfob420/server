@@ -1,0 +1,25 @@
+# Configuración de ejemplo para Reticulum (rnsd).
+# Copiar a ~/.reticulum/config y ajustar a la región/hardware.
+# Documentación: https://reticulum.network/manual/
+
+[reticulum]
+  enable_transport = True
+  share_instance = Yes
+
+[logging]
+  loglevel = 4
+
+[interfaces]
+
+  # Interfaz LoRa sobre el módulo SX1262 (Capa 1).
+  # CRÍTICO: la frecuencia debe coincidir con la banda legal de la región.
+  #   868 MHz -> EU | 915 MHz -> US/AR | 433 MHz -> Asia
+  [[LoRa SX1262]]
+    type = RNodeInterface
+    enabled = no
+    port = /dev/ttyUSB0
+    frequency = 915000000
+    bandwidth = 125000
+    txpower = 17
+    spreadingfactor = 8
+    codingrate = 5
