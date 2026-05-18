@@ -42,6 +42,32 @@ body {
 .status--up { color: var(--neon); }
 .status--down { color: #d8504a; }
 
+/* --- Pestañas --- */
+.tabs {
+  display: flex;
+  background: var(--panel);
+  border-bottom: 1px solid var(--line);
+}
+.tab {
+  flex: 1;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  padding: 10px;
+  cursor: pointer;
+  opacity: 0.55;
+}
+.tab--active { opacity: 1; color: var(--neon); border-bottom-color: var(--neon); }
+
+/* --- Vistas --- */
+.view { flex: 1; min-height: 0; display: none; flex-direction: column; }
+.view--active { display: flex; }
+
 .log {
   flex: 1;
   overflow-y: auto;
@@ -63,23 +89,18 @@ body {
   margin-bottom: 3px;
   opacity: 0.75;
 }
-.msg p { line-height: 1.5; white-space: pre-wrap; }
+.msg p { line-height: 1.5; white-space: pre-wrap; word-break: break-word; }
 
 .msg--sys { border-color: var(--amber); }
 .msg--sys .who { color: var(--amber); }
-
 .msg--user { border-color: var(--cyan); align-self: flex-end; }
 .msg--user .who { color: var(--cyan); }
-
 .msg--bot { border-color: var(--neon); }
 .msg--bot .who { color: var(--neon); }
 
-.sources {
-  margin-top: 6px;
-  font-size: 11px;
-  opacity: 0.7;
-}
+.sources { margin-top: 6px; font-size: 11px; opacity: 0.7; }
 
+/* --- Compositor --- */
 .composer {
   display: flex;
   gap: 8px;
@@ -87,9 +108,12 @@ body {
   background: var(--panel);
   border-top: 1px solid var(--line);
 }
+.composer--mesh { flex-direction: column; }
+.composer--mesh .composer { padding: 8px 0 0; background: none; border: none; }
 
-#input {
+input[type="text"] {
   flex: 1;
+  width: 100%;
   background: var(--bg);
   border: 1px solid var(--line);
   color: var(--text);
@@ -97,7 +121,7 @@ body {
   font-size: 14px;
   padding: 10px 12px;
 }
-#input:focus { outline: none; border-color: var(--neon-dim); }
+input[type="text"]:focus { outline: none; border-color: var(--neon-dim); }
 
 button {
   background: transparent;
@@ -111,3 +135,37 @@ button {
 }
 button:hover { background: var(--neon-dim); color: var(--bg); }
 button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* --- Vista mesh --- */
+.node-card,
+.peers {
+  background: var(--panel);
+  border-bottom: 1px solid var(--line);
+  padding: 10px 16px;
+}
+.node-card .who,
+.peers .who {
+  display: block;
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: var(--cyan);
+  margin-bottom: 4px;
+}
+.addr {
+  font-size: 11px;
+  color: var(--neon);
+  word-break: break-all;
+}
+
+.peers { max-height: 28vh; overflow-y: auto; }
+.peer-list { list-style: none; }
+.peer-list li {
+  padding: 7px 8px;
+  border: 1px solid var(--line);
+  margin-top: 6px;
+  cursor: pointer;
+}
+.peer-list li:hover { border-color: var(--neon-dim); }
+.peer-empty { opacity: 0.5; cursor: default !important; border-style: dashed !important; }
+.peer-name { color: var(--neon); font-weight: 700; }
+.peer-addr { font-size: 10px; opacity: 0.7; word-break: break-all; }

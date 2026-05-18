@@ -3,6 +3,7 @@ use std::time::Instant;
 
 use crate::config::Config;
 use crate::llm::{LlamaServerEngine, LlmEngine, StubEngine};
+use crate::mesh::MeshClient;
 use crate::rag::RagClient;
 
 /// Estado compartido entre todos los handlers. Es barato de clonar: los campos
@@ -13,6 +14,7 @@ pub struct AppState {
     pub llm: Arc<dyn LlmEngine>,
     pub rag: Arc<RagClient>,
     pub rag_top_k: u32,
+    pub mesh: Arc<MeshClient>,
 }
 
 impl AppState {
@@ -33,6 +35,7 @@ impl AppState {
             llm,
             rag: Arc::new(RagClient::new(config.rag_url.clone())),
             rag_top_k: config.rag_top_k,
+            mesh: Arc::new(MeshClient::new(config.mesh_url.clone())),
         }
     }
 }

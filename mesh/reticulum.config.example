@@ -1,25 +1,39 @@
-# Configuración de ejemplo para Reticulum (rnsd).
-# Copiar a ~/.reticulum/config y ajustar a la región/hardware.
+# Configuración de ejemplo para el nodo Reticulum del servicio mesh.
+# Copiar al configdir del servicio (p.ej. mesh/reticulum/config) y ajustar.
 # Documentación: https://reticulum.network/manual/
+#
+# IMPORTANTE: cada interfaz debe llevar "interface_enabled = true" para
+# activarse; sin esa línea queda definida pero inactiva.
 
 [reticulum]
-  enable_transport = True
-  share_instance = Yes
+  enable_transport = Yes
+  share_instance = No
+  panic_on_interface_error = No
 
 [logging]
-  loglevel = 4
+  loglevel = 3
 
 [interfaces]
 
-  # Interfaz LoRa sobre el módulo SX1262 (Capa 1).
-  # CRÍTICO: la frecuencia debe coincidir con la banda legal de la región.
-  #   868 MHz -> EU | 915 MHz -> US/AR | 433 MHz -> Asia
+  # --- Interfaz LoRa (producción) -------------------------------------
+  # Módulo SX1262 con firmware RNode. La frecuencia DEBE coincidir con la
+  # banda legal de la región: 868 MHz EU | 915 MHz US/AR | 433 MHz Asia.
   [[LoRa SX1262]]
     type = RNodeInterface
-    enabled = no
+    interface_enabled = false
     port = /dev/ttyUSB0
     frequency = 915000000
     bandwidth = 125000
     txpower = 17
     spreadingfactor = 8
     codingrate = 5
+
+  # --- Interfaz TCP (desarrollo / enlace por IP) ----------------------
+  # Permite probar la mesh sin hardware LoRa y unir nodos por LAN/internet.
+  # Un nodo usa TCPServerInterface; los demás, TCPClientInterface apuntando
+  # a su host y puerto.
+  [[TCP Dev]]
+    type = TCPServerInterface
+    interface_enabled = false
+    listen_ip = 0.0.0.0
+    listen_port = 4242

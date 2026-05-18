@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Setup de Survival Mesh: compila la API, prepara el RAG e indexa el corpus.
+# Setup de Survival Mesh: compila la API, prepara el entorno Python (RAG +
+# mesh) e indexa el corpus.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -14,28 +15,36 @@ fi
 echo "[setup] compilando la API (api/)..."
 cargo build --release --manifest-path api/Cargo.toml
 
-# --- 2. Entorno Python del RAG (Capa 3) -----------------------------------
+# --- 2. Entorno Python (RAG + mesh) ---------------------------------------
 if ! command -v python3 >/dev/null 2>&1; then
   echo "[setup] error: falta 'python3'" >&2
   exit 1
 fi
-if [ ! -d rag/.venv ]; then
-  echo "[setup] creando el venv del RAG (rag/.venv)..."
-  python3 -m venv rag/.venv
+if [ ! -d .venv ]; then
+  echo "[setup] creando el venv (.venv)..."
+  python3 -m venv .venv
 fi
-echo "[setup] instalando dependencias del RAG..."
-rag/.venv/bin/pip install --quiet --upgrade pip
-rag/.venv/bin/pip install --quiet -r rag/requirements.txt
+echo "[setup] instalando dependencias de Python (RAG + mesh)..."
+.venv/bin/pip install --quiet --upgrade pip
+.venv/bin/pip install --quiet -r rag/requirements.txt -r mesh/requirements.txt
 
-# --- 3. Indexar el corpus -------------------------------------------------
+# --- 3. Configuración de Reticulum (Capa 2) -------------------------------
+if [ ! -f mesh/reticulum/config ]; then
+  echo "[setup] creando config de Reticulum en mesh/reticulum/config..."
+  mkdir -p mesh/reticulum
+  cp mesh/reticulum.config.example mesh/reticulum/config
+  echo "[setup] editá mesh/reticulum/config para activar interfaces (LoRa/TCP)."
+fi
+
+# --- 4. Indexar el corpus (Capa 3) ----------------------------------------
 echo "[setup] indexando el corpus (descarga el modelo de embeddings la 1ra vez)..."
-( cd rag && .venv/bin/python3 ingest.py --corpus corpus/ --out survival.db )
+( cd rag && "$ROOT/.venv/bin/python3" ingest.py --corpus corpus/ --out survival.db )
 
 cat <<'EOF'
 
 [setup] listo.
 
-Para correr todo en local (servicio RAG + API + PWA):
+Para correr todo en local (mesh + RAG + API + PWA):
     scripts/run-dev.sh
 
 Luego abrí http://localhost:8080

@@ -1,0 +1,15 @@
+# Servicio mesh / nodo Reticulum de Survival Mesh (Capa 2).
+# Instalar en /etc/systemd/system/ — ver deploy/README.md.
+[Unit]
+Description=Survival Mesh - servicio mesh (Capa 2)
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/survival-mesh/mesh
+ExecStart=/opt/survival-mesh/.venv/bin/python3 service.py --configdir /opt/survival-mesh/mesh/reticulum --port 8091
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

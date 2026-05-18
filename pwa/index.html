@@ -10,23 +10,64 @@
 </head>
 <body>
   <header class="bar">
-    <span class="logo">▚ SURVIVAL&nbsp;MESH</span>
-    <span id="status" class="status status--down">● OFFLINE</span>
+    <span class="logo">&#9626; SURVIVAL&nbsp;MESH</span>
+    <span id="status" class="status status--down">&#9679; OFFLINE</span>
   </header>
 
-  <main id="log" class="log">
-    <div class="msg msg--sys">
-      <span class="who">SISTEMA</span>
-      <p>Terminal de supervivencia. Asistente educacional — no reemplaza
-      criterio profesional. El motor LLM está en modo stub.</p>
-    </div>
-  </main>
+  <nav class="tabs">
+    <button class="tab tab--active" data-view="assistant">ASISTENTE</button>
+    <button class="tab" data-view="mesh">MESH</button>
+  </nav>
 
-  <form id="form" class="composer">
-    <input id="input" type="text" autocomplete="off"
-           placeholder="Consultá al nodo..." />
-    <button type="submit">ENVIAR</button>
-  </form>
+  <!-- ===== VISTA ASISTENTE (LLM + RAG) ===== -->
+  <section id="view-assistant" class="view view--active">
+    <main id="log" class="log">
+      <div class="msg msg--sys">
+        <span class="who">SISTEMA</span>
+        <p>Terminal de supervivencia. Asistente educativo &mdash; no reemplaza
+        criterio profesional. Las respuestas usan el corpus RAG local.</p>
+      </div>
+    </main>
+    <form id="chat-form" class="composer">
+      <input id="chat-input" type="text" autocomplete="off"
+             placeholder="Consultá al nodo..." />
+      <button type="submit">ENVIAR</button>
+    </form>
+  </section>
+
+  <!-- ===== VISTA MESH ===== -->
+  <section id="view-mesh" class="view">
+    <div class="node-card">
+      <span class="who">ESTE NODO</span>
+      <div><b id="mesh-name">&mdash;</b></div>
+      <div class="addr" id="mesh-addr">sin servicio mesh</div>
+    </div>
+
+    <div class="peers">
+      <span class="who">NODOS DESCUBIERTOS (<span id="peer-count">0</span>)</span>
+      <ul id="peer-list" class="peer-list">
+        <li class="peer-empty">Ningún nodo a la vista todavía.</li>
+      </ul>
+    </div>
+
+    <main id="mesh-log" class="log">
+      <div class="msg msg--sys">
+        <span class="who">SISTEMA</span>
+        <p>Buzón de la mesh. Los mensajes llegan por LoRa, BLE o WiFi vía
+        Reticulum. Tocá un nodo de la lista para responderle.</p>
+      </div>
+    </main>
+
+    <form id="mesh-form" class="composer composer--mesh">
+      <input id="mesh-to" type="text" autocomplete="off"
+             placeholder="dirección de destino (hex)" />
+      <div class="composer">
+        <input id="mesh-text" type="text" autocomplete="off"
+               placeholder="mensaje (máx. 230)..." maxlength="230" />
+        <button type="submit">ENVIAR</button>
+      </div>
+    </form>
+  </section>
 
   <script src="app.js"></script>
 </body>

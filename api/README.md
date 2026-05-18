@@ -21,6 +21,7 @@ un `llama-server`.
 | `SM_PWA_DIR`    | `../pwa`                  | Carpeta de la PWA servida como estática.      |
 | `SM_RAG_URL`    | `http://127.0.0.1:8090`   | URL del servicio RAG.                         |
 | `SM_RAG_TOP_K`  | `4`                       | Fragmentos a recuperar por consulta.          |
+| `SM_MESH_URL`   | `http://127.0.0.1:8091`   | URL del servicio mesh.                        |
 | `SM_LLM_URL`    | *(vacío)*                 | URL de un `llama-server`. Vacío → motor stub. |
 | `SM_LLM_MODEL`  | `qwen2.5-3b-instruct`     | Nombre de modelo enviado al `llama-server`.   |
 | `RUST_LOG`      | `info`                    | Nivel de logging.                             |
@@ -29,9 +30,13 @@ un `llama-server`.
 
 | Método | Ruta          | Descripción                                       |
 |--------|---------------|---------------------------------------------------|
-| GET    | `/api/health` | Estado del servidor, uptime y motor LLM.          |
-| POST   | `/api/chat`   | Flujo RAG + LLM. Body: `{"message": "..."}`.      |
-| GET    | `/*`          | Archivos estáticos de la PWA.                     |
+| GET    | `/api/health`       | Estado del servidor, uptime y motor LLM.       |
+| POST   | `/api/chat`         | Flujo RAG + LLM. Body: `{"message": "..."}`.   |
+| GET    | `/api/mesh/status`  | Estado del nodo mesh local.                    |
+| GET    | `/api/mesh/peers`   | Nodos descubiertos en la mesh.                 |
+| GET    | `/api/mesh/inbox`   | Mensajes recibidos (opcional `?since=<id>`).   |
+| POST   | `/api/mesh/send`    | Envía un mensaje. Body: `{"to": "...", "text": "..."}`. |
+| GET    | `/*`                | Archivos estáticos de la PWA.                  |
 
 `POST /api/chat` recupera contexto del corpus vía el servicio RAG, se lo pasa
 al motor LLM y devuelve `{reply, model, sources}`. Si el servicio RAG no está
@@ -69,6 +74,7 @@ src/
 ├── config.rs         configuración desde entorno
 ├── state.rs          estado compartido; selección de motor LLM
 ├── rag.rs            cliente HTTP del servicio RAG
+├── mesh.rs           cliente HTTP del servicio mesh
 ├── llm/
 │   ├── mod.rs        trait LlmEngine, system prompt, armado de contexto
 │   ├── stub.rs       StubEngine
@@ -76,5 +82,6 @@ src/
 └── routes/
     ├── mod.rs        router
     ├── health.rs     GET /api/health
-    └── chat.rs       POST /api/chat (flujo RAG + LLM)
+    ├── chat.rs       POST /api/chat (flujo RAG + LLM)
+    └── mesh.rs       rutas /api/mesh/* (estado, peers, inbox, send)
 ```

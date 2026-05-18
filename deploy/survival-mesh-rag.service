@@ -7,7 +7,7 @@ After=network.target
 [Service]
 Type=simple
 WorkingDirectory=/opt/survival-mesh/rag
-ExecStart=/opt/survival-mesh/rag/.venv/bin/python3 service.py --db survival.db --port 8090
+ExecStart=/opt/survival-mesh/.venv/bin/python3 service.py --db survival.db --port 8090
 Restart=on-failure
 RestartSec=3
 

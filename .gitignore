@@ -17,6 +17,9 @@ rag/models/
 rag/*.db
 rag/*.sqlite
 
+# Estado en runtime del nodo Reticulum (identidad, storage, config local)
+mesh/reticulum/
+
 # Node / PWA
 node_modules/
 

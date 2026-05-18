@@ -1,0 +1,2 @@
+# Capa mesh (Capa 2) — Reticulum Network Stack.
+rns>=0.9

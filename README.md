@@ -28,14 +28,19 @@ de hardware y documentación:
 
 Lo que ya funciona y lo que sigue siendo stub:
 
-- ✅ **Capa de inteligencia (Capa 3)** — pipeline RAG funcional: ingesta de
-  corpus, embeddings ONNX multilingües, índice SQLite-vec y servicio HTTP de
-  recuperación.
-- ✅ **API (Capa 4)** — servidor Axum con flujo RAG + LLM. Motor `StubEngine`
-  por defecto; `LlamaServerEngine` real activable con `SM_LLM_URL`.
-- ✅ **PWA (Capa 4)** — terminal de chat que consume la API.
-- 🚧 **Mesh / transporte (Capas 1-2)** — documentación, config de Reticulum y
-  unidades systemd; la integración requiere hardware físico (LoRa, BLE).
+- ✅ **Mesh (Capa 2)** — nodo de mensajería sobre Reticulum: identidad
+  persistente, descubrimiento de nodos, envío/recepción de mensajes cifrados y
+  servicio HTTP. Probado entre dos nodos sobre TCP.
+- ✅ **Inteligencia (Capa 3)** — pipeline RAG funcional: ingesta de corpus,
+  embeddings ONNX multilingües, índice SQLite-vec y servicio HTTP.
+- ✅ **API (Capa 4)** — servidor Axum con flujo RAG + LLM y rutas de mesh.
+  Motor `StubEngine` por defecto; `LlamaServerEngine` real activable con
+  `SM_LLM_URL`.
+- ✅ **PWA (Capa 4)** — interfaz con dos vistas: asistente (LLM + RAG) y mesh
+  (mensajería).
+- 🚧 **Transporte LoRa/BLE (Capa 1)** — Reticulum funciona sobre TCP hoy; el
+  transporte LoRa (`RNodeInterface`) y los bridges BitChat/Meshtastic/Nostr
+  requieren hardware físico.
 
 ## Arranque rápido
 

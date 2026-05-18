@@ -2,6 +2,7 @@
 
 mod config;
 mod llm;
+mod mesh;
 mod rag;
 mod routes;
 mod state;

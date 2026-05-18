@@ -1,37 +1,56 @@
-# mesh/ — Protocolo mesh (Capa 2)
+# mesh/ — Capa mesh (Capa 2)
 
-Integración con **Reticulum Network Stack (RNS)** y bridges a redes mesh
-existentes. Es la pieza que rutea mensajes entre transportes (Capa 1) sin
-servidores ni direcciones IP.
+Nodo de mensajería descentralizada sobre **Reticulum (RNS)**. **Funcional.**
 
-> **Estado: stub.** Solo documentación y un ejemplo de configuración. La
-> integración con el daemon `rnsd` y los bridges está pendiente.
+Reticulum es un stack de red basado en criptografía y agnóstico de transporte:
+no usa IP ni servidores, y cada nodo se identifica por su clave pública. El
+mismo nodo funciona sobre TCP, interfaces locales o **LoRa** (módulo SX1262)
+cambiando solo la configuración de interfaces — el código de mensajería no
+cambia.
 
-## Reticulum como core
+## Componentes
 
-- Stack de red basado en criptografía, agnóstico de transporte (no usa IP).
-- Cada nodo se identifica por su clave pública.
-- Una sola Pi puede tener LoRa + BLE + WiFi + túnel a internet activos a la
-  vez; Reticulum elige el mejor medio y forma una mesh encriptada E2E.
-- Implementación: paquete Python `rns` (pip), daemon `rnsd` vía systemd.
+| Archivo / módulo     | Rol                                                   |
+|----------------------|-------------------------------------------------------|
+| `smmesh/node.py`     | `MeshNode`: identidad, anuncios, buzón, envío/recepción. |
+| `service.py`         | Servicio HTTP que la API (`../api`) consulta.         |
+| `reticulum.config.example` | Config de Reticulum (LoRa + TCP de ejemplo).    |
 
-## Bridges previstos (efecto red)
+## Uso
 
-| Bridge      | Qué conecta                                              |
-|-------------|----------------------------------------------------------|
-| BitChat     | Celulares con la app BitChat vía BLE.                    |
-| Meshtastic  | La red LoRa mundial de Meshtastic (decenas de miles de nodos). |
-| Nostr       | Gateway a relays Nostr globales cuando hay internet.     |
+```sh
+pip install -r requirements.txt          # o usar el venv de scripts/setup.sh
 
-## Archivos
+# Configdir de Reticulum (interfaces): copiar y editar el ejemplo
+mkdir -p reticulum && cp reticulum.config.example reticulum/config
 
-- `reticulum.config.example` — configuración de ejemplo para `rnsd` con una
-  interfaz LoRa. Copiar a `~/.reticulum/config` y ajustar.
+# Levantar el nodo + servicio HTTP
+python3 service.py --configdir reticulum --name mi-nodo --port 8091
+```
+
+Cada interfaz del config necesita `interface_enabled = true` para activarse.
+Sin ninguna interfaz activa el nodo corre igual, pero aislado (sin peers).
+
+## Servicio HTTP
+
+| Método | Ruta        | Descripción                                          |
+|--------|-------------|------------------------------------------------------|
+| GET    | `/health`   | Estado del nodo: dirección, nombre, nº de peers/inbox. |
+| GET    | `/peers`    | Nodos descubiertos vía anuncios.                     |
+| GET    | `/inbox`    | Mensajes recibidos (opcional `?since=<id>`).         |
+| POST   | `/send`     | Body `{"to": "<address>", "text": "..."}`.           |
+| POST   | `/announce` | Fuerza un anuncio inmediato.                         |
+
+## Mensajería
+
+Los mensajes son paquetes RNS únicos cifrados extremo a extremo. El texto se
+limita a 230 caracteres (un paquete `SINGLE` transporta ~380 bytes; el resto es
+el sobre JSON). Mensajes más largos requerirían `RNS.Resource` sobre un `Link`,
+o adoptar **LXMF** para almacenamiento-y-reenvío — pasos naturales a futuro.
 
 ## Pendiente
 
-- [ ] Script de instalación/arranque de `rnsd` (systemd unit).
-- [ ] Cliente Reticulum para que `../api` envíe/reciba mensajes por la mesh.
-- [ ] Bridge BitChat (BLE).
-- [ ] Bridge Meshtastic.
-- [ ] Gateway Nostr.
+- [ ] Transporte LoRa real: validar `RNodeInterface` con hardware SX1262.
+- [ ] Bridges a BitChat (BLE) y Meshtastic.
+- [ ] Gateway Nostr para alcance global cuando hay internet.
+- [ ] LXMF para mensajes largos y store-and-forward.
