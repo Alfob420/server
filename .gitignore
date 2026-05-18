@@ -20,6 +20,10 @@ rag/*.sqlite
 # Estado en runtime del nodo Reticulum (identidad, storage, config local)
 mesh/reticulum/
 
+# Claves privadas Nostr — NUNCA versionar
+nostr/*.key
+*.key
+
 # Node / PWA
 node_modules/
 

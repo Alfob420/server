@@ -17,6 +17,7 @@
   <nav class="tabs">
     <button class="tab tab--active" data-view="assistant">ASISTENTE</button>
     <button class="tab" data-view="mesh">MESH</button>
+    <button class="tab" data-view="nostr">GLOBAL</button>
   </nav>
 
   <!-- ===== VISTA ASISTENTE (LLM + RAG) ===== -->
@@ -64,6 +65,34 @@
       <div class="composer">
         <input id="mesh-text" type="text" autocomplete="off"
                placeholder="mensaje (máx. 230)..." maxlength="230" />
+        <button type="submit">ENVIAR</button>
+      </div>
+    </form>
+  </section>
+
+  <!-- ===== VISTA GLOBAL (NOSTR) ===== -->
+  <section id="view-nostr" class="view">
+    <div class="node-card">
+      <span class="who">ESTE NODO &middot; NOSTR</span>
+      <div class="addr" id="nostr-pubkey">sin gateway Nostr</div>
+      <div class="relay-line">RELAYS <span id="nostr-relays">0/0</span></div>
+    </div>
+
+    <main id="nostr-log" class="log">
+      <div class="msg msg--sys">
+        <span class="who">SISTEMA</span>
+        <p>Alcance global vía relays Nostr cuando hay internet. Los mensajes
+        son directos y cifrados extremo a extremo. Enviá a la clave pública
+        (hex) del destino.</p>
+      </div>
+    </main>
+
+    <form id="nostr-form" class="composer composer--mesh">
+      <input id="nostr-to" type="text" autocomplete="off"
+             placeholder="clave pública de destino (64 hex)" />
+      <div class="composer">
+        <input id="nostr-text" type="text" autocomplete="off"
+               placeholder="mensaje..." />
         <button type="submit">ENVIAR</button>
       </div>
     </form>

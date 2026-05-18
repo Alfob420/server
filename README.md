@@ -18,7 +18,8 @@ de hardware y documentación:
 | `pwa/`         | 4    | PWA cyberpunk servida desde el hotspot del dispositivo.  |
 | `rag/`         | 3    | Pipeline RAG: ingesta de corpus + embeddings + SQLite-vec. |
 | `mesh/`        | 2    | Integración Reticulum (RNS) y bridges a BitChat/Meshtastic. |
-| `transport/`   | 1    | Configuración de transportes físicos (LoRa, BLE, WiFi, Nostr). |
+| `nostr/`       | 1    | Gateway Nostr: alcance global vía relays públicos.       |
+| `transport/`   | 1    | Configuración de transportes físicos (LoRa, BLE, WiFi).  |
 | `hardware/`    | —    | BOM, tiers de hardware y notas de fabricación.           |
 | `deploy/`      | —    | Unidades systemd para correr en el dispositivo.          |
 | `docs/`        | —    | Arquitectura técnica y roadmap.                          |
@@ -28,19 +29,21 @@ de hardware y documentación:
 
 Lo que ya funciona y lo que sigue siendo stub:
 
+- ✅ **Gateway Nostr (Capa 1)** — alcance global: mensajes directos cifrados
+  (NIP-04) vía relays Nostr públicos. Probado con dos nodos sobre relays reales.
 - ✅ **Mesh (Capa 2)** — nodo de mensajería sobre Reticulum: identidad
   persistente, descubrimiento de nodos, envío/recepción de mensajes cifrados y
   servicio HTTP. Probado entre dos nodos sobre TCP.
 - ✅ **Inteligencia (Capa 3)** — pipeline RAG funcional: ingesta de corpus,
   embeddings ONNX multilingües, índice SQLite-vec y servicio HTTP.
-- ✅ **API (Capa 4)** — servidor Axum con flujo RAG + LLM y rutas de mesh.
-  Motor `StubEngine` por defecto; `LlamaServerEngine` real activable con
+- ✅ **API (Capa 4)** — servidor Axum con flujo RAG + LLM y rutas de mesh y
+  Nostr. Motor `StubEngine` por defecto; `LlamaServerEngine` real activable con
   `SM_LLM_URL`.
-- ✅ **PWA (Capa 4)** — interfaz con dos vistas: asistente (LLM + RAG) y mesh
-  (mensajería).
+- ✅ **PWA (Capa 4)** — interfaz con tres vistas: asistente (LLM + RAG), mesh
+  (mensajería local) y global (Nostr).
 - 🚧 **Transporte LoRa/BLE (Capa 1)** — Reticulum funciona sobre TCP hoy; el
-  transporte LoRa (`RNodeInterface`) y los bridges BitChat/Meshtastic/Nostr
-  requieren hardware físico.
+  transporte LoRa (`RNodeInterface`) y los bridges BitChat/Meshtastic requieren
+  hardware físico.
 
 ## Arranque rápido
 

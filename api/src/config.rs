@@ -11,6 +11,8 @@ pub struct Config {
     pub rag_top_k: u32,
     /// URL del servicio mesh (`../mesh/service.py`).
     pub mesh_url: String,
+    /// URL del gateway Nostr (`../nostr/service.py`).
+    pub nostr_url: String,
     /// URL de un servidor llama.cpp (`llama-server`). Si está vacío, se usa el
     /// motor LLM stub.
     pub llm_url: Option<String>,
@@ -46,6 +48,7 @@ impl Config {
             rag_url: env_or("SM_RAG_URL", "http://127.0.0.1:8090"),
             rag_top_k,
             mesh_url: env_or("SM_MESH_URL", "http://127.0.0.1:8091"),
+            nostr_url: env_or("SM_NOSTR_URL", "http://127.0.0.1:8092"),
             llm_url,
             llm_model: env_or("SM_LLM_MODEL", "qwen2.5-3b-instruct"),
         }

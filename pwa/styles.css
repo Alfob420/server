@@ -169,3 +169,6 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 .peer-empty { opacity: 0.5; cursor: default !important; border-style: dashed !important; }
 .peer-name { color: var(--neon); font-weight: 700; }
 .peer-addr { font-size: 10px; opacity: 0.7; word-break: break-all; }
+
+.relay-line { font-size: 11px; margin-top: 6px; opacity: 0.8; }
+.relay-line span { color: var(--cyan); }

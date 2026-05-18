@@ -10,11 +10,12 @@ que el venv de Python está en `/opt/survival-mesh/.venv` (lo crea
 | Archivo                       | Capa | Servicio                          |
 |-------------------------------|------|-----------------------------------|
 | `survival-mesh-mesh.service`  | 2    | Nodo Reticulum (puerto 8091).     |
+| `survival-mesh-nostr.service` | 1    | Gateway Nostr (puerto 8092).      |
 | `survival-mesh-rag.service`   | 3    | Servicio RAG (puerto 8090).       |
 | `survival-mesh-api.service`   | 4    | API local + PWA (puerto 8080).    |
 
-La API depende de los servicios mesh y RAG (`Wants`/`After`); si alguno no está
-disponible, la API degrada con elegancia en vez de fallar.
+La API depende de los servicios mesh, Nostr y RAG (`Wants`/`After`); si alguno
+no está disponible, la API degrada con elegancia en vez de fallar.
 
 ## Instalación
 
@@ -30,7 +31,8 @@ sudo nano mesh/reticulum/config        # activar interface_enabled = true
 # 3. Instalar y activar las unidades
 sudo cp deploy/*.service /etc/systemd/system/
 sudo systemctl daemon-reload
-sudo systemctl enable --now survival-mesh-mesh survival-mesh-rag survival-mesh-api
+sudo systemctl enable --now survival-mesh-mesh survival-mesh-nostr \
+  survival-mesh-rag survival-mesh-api
 ```
 
 ## Notas

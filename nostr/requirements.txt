@@ -1,0 +1,4 @@
+# Gateway Nostr — dependencias.
+coincurve>=19
+websocket-client>=1.7
+cryptography>=42

@@ -3,6 +3,7 @@
 mod chat;
 mod health;
 mod mesh;
+mod nostr;
 
 use axum::routing::{get, post};
 use axum::Router;
@@ -19,5 +20,8 @@ pub fn router(state: AppState) -> Router {
         .route("/api/mesh/peers", get(mesh::peers))
         .route("/api/mesh/inbox", get(mesh::inbox))
         .route("/api/mesh/send", post(mesh::send))
+        .route("/api/nostr/status", get(nostr::status))
+        .route("/api/nostr/inbox", get(nostr::inbox))
+        .route("/api/nostr/send", post(nostr::send))
         .with_state(state)
 }

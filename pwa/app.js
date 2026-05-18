@@ -172,8 +172,59 @@ meshForm.addEventListener("submit", async (ev) => {
   }
 });
 
+// --- vista global (Nostr) --------------------------------------------------
+const nostrForm = el("nostr-form");
+const nostrTo = el("nostr-to");
+const nostrText = el("nostr-text");
+const nostrLog = el("nostr-log");
+let lastNostrId = 0;
+
+async function refreshNostr() {
+  try {
+    const status = await (await fetch("/api/nostr/status")).json();
+    el("nostr-pubkey").textContent = status.pubkey || "—";
+    el("nostr-relays").textContent =
+      `${status.relays_connected}/${status.relays.length}`;
+  } catch {
+    el("nostr-pubkey").textContent = "gateway Nostr no disponible";
+    el("nostr-relays").textContent = "0/0";
+  }
+
+  try {
+    const msgs = await (await fetch(`/api/nostr/inbox?since=${lastNostrId}`)).json();
+    for (const m of msgs) {
+      lastNostrId = Math.max(lastNostrId, m.id);
+      addMessage(nostrLog, "bot", `${m.from.slice(0, 16)}… · NOSTR`, m.text);
+    }
+  } catch {
+    /* gateway caído: se reintenta en el próximo ciclo */
+  }
+}
+
+nostrForm.addEventListener("submit", async (ev) => {
+  ev.preventDefault();
+  const to = nostrTo.value.trim();
+  const text = nostrText.value.trim();
+  if (!to || !text) return;
+
+  const btn = nostrForm.querySelector("button");
+  btn.disabled = true;
+  try {
+    await postJSON("/api/nostr/send", { to, text });
+    addMessage(nostrLog, "user", `VOS → ${to.slice(0, 16)}…`, text);
+    nostrText.value = "";
+  } catch (err) {
+    addMessage(nostrLog, "sys", "ERROR", String(err));
+  } finally {
+    btn.disabled = false;
+    nostrText.focus();
+  }
+});
+
 // --- ciclos de actualización ----------------------------------------------
 refreshStatus();
 refreshMesh();
+refreshNostr();
 setInterval(refreshStatus, 10000);
 setInterval(refreshMesh, 5000);
+setInterval(refreshNostr, 5000);

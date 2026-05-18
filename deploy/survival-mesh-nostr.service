@@ -1,0 +1,15 @@
+# Gateway Nostr de Survival Mesh (transporte global).
+# Instalar en /etc/systemd/system/ — ver deploy/README.md.
+[Unit]
+Description=Survival Mesh - gateway Nostr
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/survival-mesh/nostr
+ExecStart=/opt/survival-mesh/.venv/bin/python3 service.py --secret /opt/survival-mesh/nostr/nostr.key --port 8092
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

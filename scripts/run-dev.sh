@@ -26,6 +26,10 @@ echo "[run] iniciando servicio mesh en :8091 ..."
 ( cd "$ROOT/mesh" && exec "$PY" service.py --configdir reticulum --port 8091 ) &
 PIDS+=($!)
 
+echo "[run] iniciando gateway Nostr en :8092 ..."
+( cd "$ROOT/nostr" && exec "$PY" service.py --secret nostr.key --port 8092 ) &
+PIDS+=($!)
+
 echo "[run] iniciando servicio RAG en :8090 ..."
 ( cd "$ROOT/rag" && exec "$PY" service.py --db survival.db --port 8090 ) &
 PIDS+=($!)
@@ -38,5 +42,7 @@ done
 
 echo "[run] iniciando API en :8080 (Ctrl-C para salir) ..."
 cd "$ROOT/api"
-SM_RAG_URL="http://127.0.0.1:8090" SM_MESH_URL="http://127.0.0.1:8091" \
+SM_RAG_URL="http://127.0.0.1:8090" \
+SM_MESH_URL="http://127.0.0.1:8091" \
+SM_NOSTR_URL="http://127.0.0.1:8092" \
   exec cargo run --release

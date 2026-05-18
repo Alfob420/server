@@ -2,8 +2,8 @@
 # Instalar en /etc/systemd/system/ — ver deploy/README.md.
 [Unit]
 Description=Survival Mesh - API local (Capa 4)
-After=network.target survival-mesh-rag.service survival-mesh-mesh.service
-Wants=survival-mesh-rag.service survival-mesh-mesh.service
+After=network.target survival-mesh-rag.service survival-mesh-mesh.service survival-mesh-nostr.service
+Wants=survival-mesh-rag.service survival-mesh-mesh.service survival-mesh-nostr.service
 
 [Service]
 Type=simple
@@ -13,6 +13,7 @@ Environment=SM_PORT=8080
 Environment=SM_PWA_DIR=/opt/survival-mesh/pwa
 Environment=SM_RAG_URL=http://127.0.0.1:8090
 Environment=SM_MESH_URL=http://127.0.0.1:8091
+Environment=SM_NOSTR_URL=http://127.0.0.1:8092
 # Para inferencia real, apuntar a un llama-server:
 # Environment=SM_LLM_URL=http://127.0.0.1:9001
 Restart=on-failure

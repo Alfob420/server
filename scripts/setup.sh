@@ -24,9 +24,10 @@ if [ ! -d .venv ]; then
   echo "[setup] creando el venv (.venv)..."
   python3 -m venv .venv
 fi
-echo "[setup] instalando dependencias de Python (RAG + mesh)..."
+echo "[setup] instalando dependencias de Python (RAG + mesh + Nostr)..."
 .venv/bin/pip install --quiet --upgrade pip
-.venv/bin/pip install --quiet -r rag/requirements.txt -r mesh/requirements.txt
+.venv/bin/pip install --quiet \
+  -r rag/requirements.txt -r mesh/requirements.txt -r nostr/requirements.txt
 
 # --- 3. Configuración de Reticulum (Capa 2) -------------------------------
 if [ ! -f mesh/reticulum/config ]; then
