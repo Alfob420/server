@@ -1,42 +1,59 @@
 # rag/ — Pipeline RAG (Capa 3)
 
 Construye y consulta la base de conocimiento de supervivencia que el LLM usa
-como contexto (Retrieval Augmented Generation).
+como contexto (Retrieval Augmented Generation). **Funcional.**
 
-> **Estado: stub.** `ingest.py` define la estructura del pipeline pero no
-> ejecuta embeddings reales todavía. Ver los `TODO` en el archivo.
+## Componentes
 
-## Stack previsto
+| Archivo / módulo        | Rol                                                  |
+|-------------------------|------------------------------------------------------|
+| `smrag/embeddings.py`   | Embeddings ONNX (MiniLM) con fallback hash.          |
+| `smrag/chunking.py`     | Fragmentación de documentos por párrafos.            |
+| `smrag/extract.py`      | Extracción de texto desde txt/md/pdf.                |
+| `smrag/store.py`        | Almacén vectorial SQLite + sqlite-vec.               |
+| `smrag/pipeline.py`     | Orquestación de la ingesta.                          |
+| `ingest.py`             | CLI: indexa `corpus/` en `survival.db`.              |
+| `query.py`              | CLI: consulta el índice (depuración).                |
+| `service.py`            | Servicio HTTP que la API (`../api`) consulta.        |
 
-| Pieza            | Elección             | Por qué                                  |
-|------------------|----------------------|-------------------------------------------|
-| Base vectorial   | SQLite + `sqlite-vec`| Embedded, nativo en Android NDK y Pi.     |
-| Embeddings       | `all-MiniLM-L6-v2`   | 90 MB, multiplataforma, Apache 2.0.       |
-| Formato corpus   | PDF / TXT / Markdown | Survivor Library, FM 21-76, Kiwix, etc.   |
+## Modelo de embeddings
 
-El índice resultante es un único archivo `.db` portable que se copia entre
-dispositivos.
+Por defecto se usa **`paraphrase-multilingual-MiniLM-L12-v2`** en formato ONNX
+(~118 MB, cuantizado). Documento 1 mencionaba `all-MiniLM-L6-v2`, pero ese
+modelo es solo inglés y la recuperación sobre un corpus en español es pobre; el
+modelo multilingüe es el correcto para el producto. Ambos producen vectores de
+384 dimensiones y se puede elegir con `--model {multilingual,english}`.
 
-## Uso previsto
+El modelo se descarga de Hugging Face al primer uso y se cachea en `models/`
+(ignorado por git). Sin red, el pipeline degrada a un embedder hash
+determinista (`--embedder hash`), útil solo para probar la mecánica.
+
+## Uso
 
 ```sh
-python3 -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
+pip install -r requirements.txt          # o usar el venv de scripts/setup.sh
 
-# Ingestar el corpus en corpus/ -> survival.db
+# 1. Indexar el corpus
 python3 ingest.py --corpus corpus/ --out survival.db
+
+# 2. Probar la recuperación
+python3 query.py "como purifico agua del rio"
+
+# 3. Levantar el servicio HTTP que consume la API
+python3 service.py --db survival.db --port 8090
 ```
+
+## Servicio HTTP
+
+| Método | Ruta        | Descripción                                       |
+|--------|-------------|---------------------------------------------------|
+| GET    | `/health`   | Estado, backend de embeddings y nº de chunks.     |
+| POST   | `/retrieve` | Body `{"query": "...", "k": 4}` → `{"hits": [...]}`. |
 
 ## Corpus
 
-Dejá los documentos fuente en `corpus/` (ignorado por git salvo `.gitkeep`).
-Solo incluir material con licencia compatible con redistribución comercial
-(CC BY, CC BY-SA, Apache, MIT, dominio público).
-
-## Pendiente
-
-- [ ] Extracción de texto de PDF.
-- [ ] Chunking con solapamiento.
-- [ ] Generación de embeddings con `sentence-transformers`.
-- [ ] Escritura a `sqlite-vec`.
-- [ ] Función de consulta (top-k) para enchufar al `LlmEngine` de `../api`.
+`corpus/` incluye un corpus de muestra (material original del proyecto, licencia
+libre) sobre agua, refugio, fuego y señalización. Para producción se suma
+material con licencia compatible con redistribución (CC BY/BY-SA, dominio
+público): Survivor Library, FM 21-76, Wikipedia offline, etc. NO incluir libros
+con copyright tradicional.

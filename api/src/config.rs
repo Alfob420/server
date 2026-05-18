@@ -5,7 +5,19 @@ use std::path::PathBuf;
 pub struct Config {
     pub port: u16,
     pub pwa_dir: PathBuf,
-    pub model_path: Option<PathBuf>,
+    /// URL del servicio RAG (`../rag/service.py`).
+    pub rag_url: String,
+    /// Cantidad de fragmentos a recuperar del RAG por consulta.
+    pub rag_top_k: u32,
+    /// URL de un servidor llama.cpp (`llama-server`). Si está vacío, se usa el
+    /// motor LLM stub.
+    pub llm_url: Option<String>,
+    /// Nombre de modelo a enviar al servidor llama.cpp.
+    pub llm_model: String,
+}
+
+fn env_or(key: &str, default: &str) -> String {
+    std::env::var(key).ok().filter(|s| !s.is_empty()).unwrap_or_else(|| default.to_string())
 }
 
 impl Config {
@@ -19,11 +31,20 @@ impl Config {
             .map(PathBuf::from)
             .unwrap_or_else(|_| PathBuf::from("../pwa"));
 
-        let model_path = std::env::var("SM_MODEL_PATH")
+        let rag_top_k = std::env::var("SM_RAG_TOP_K")
             .ok()
-            .filter(|s| !s.is_empty())
-            .map(PathBuf::from);
+            .and_then(|v| v.parse().ok())
+            .unwrap_or(4);
 
-        Self { port, pwa_dir, model_path }
+        let llm_url = std::env::var("SM_LLM_URL").ok().filter(|s| !s.is_empty());
+
+        Self {
+            port,
+            pwa_dir,
+            rag_url: env_or("SM_RAG_URL", "http://127.0.0.1:8090"),
+            rag_top_k,
+            llm_url,
+            llm_model: env_or("SM_LLM_MODEL", "qwen2.5-3b-instruct"),
+        }
     }
 }

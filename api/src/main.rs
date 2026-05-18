@@ -2,6 +2,7 @@
 
 mod config;
 mod llm;
+mod rag;
 mod routes;
 mod state;
 
@@ -30,9 +31,6 @@ async fn main() -> anyhow::Result<()> {
     let state = AppState::new(&config);
 
     tracing::info!(?config, "configuración cargada");
-    if config.model_path.is_none() {
-        tracing::warn!("SM_MODEL_PATH no definido — usando motor LLM stub");
-    }
 
     let app = routes::router(state)
         .fallback_service(ServeDir::new(&config.pwa_dir))

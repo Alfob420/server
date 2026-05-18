@@ -12,8 +12,8 @@ venv/
 *.gguf
 *.bin
 *.safetensors
-rag/corpus/*
-!rag/corpus/.gitkeep
+*.onnx
+rag/models/
 rag/*.db
 rag/*.sqlite
 

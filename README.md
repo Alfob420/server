@@ -20,30 +20,37 @@ de hardware y documentación:
 | `mesh/`        | 2    | Integración Reticulum (RNS) y bridges a BitChat/Meshtastic. |
 | `transport/`   | 1    | Configuración de transportes físicos (LoRa, BLE, WiFi, Nostr). |
 | `hardware/`    | —    | BOM, tiers de hardware y notas de fabricación.           |
+| `deploy/`      | —    | Unidades systemd para correr en el dispositivo.          |
 | `docs/`        | —    | Arquitectura técnica y roadmap.                          |
-| `scripts/`     | —    | Scripts de setup y aprovisionamiento.                    |
+| `scripts/`     | —    | Scripts de setup y arranque.                             |
 
 ## Estado actual
 
-Este es el **scaffold inicial**. Lo que ya funciona y lo que es stub:
+Lo que ya funciona y lo que sigue siendo stub:
 
-- ✅ `api/` — servidor Axum que compila y corre, con endpoints `/api/health`
-  y `/api/chat`. El motor LLM es un **stub** (`StubEngine`) que aún no invoca
-  llama.cpp.
-- ✅ `pwa/` — interfaz de chat mínima que consume la API local.
-- 🚧 `rag/`, `mesh/`, `transport/` — READMEs y stubs documentados, sin
-  implementación todavía.
+- ✅ **Capa de inteligencia (Capa 3)** — pipeline RAG funcional: ingesta de
+  corpus, embeddings ONNX multilingües, índice SQLite-vec y servicio HTTP de
+  recuperación.
+- ✅ **API (Capa 4)** — servidor Axum con flujo RAG + LLM. Motor `StubEngine`
+  por defecto; `LlamaServerEngine` real activable con `SM_LLM_URL`.
+- ✅ **PWA (Capa 4)** — terminal de chat que consume la API.
+- 🚧 **Mesh / transporte (Capas 1-2)** — documentación, config de Reticulum y
+  unidades systemd; la integración requiere hardware físico (LoRa, BLE).
 
 ## Arranque rápido
 
 ```sh
-# 1. Levantar el servidor API (sirve también la PWA)
-cd api
-cargo run
+# 1. Setup: compila la API, prepara el RAG e indexa el corpus
+scripts/setup.sh
 
-# 2. Abrir la PWA
-#    http://localhost:8080
+# 2. Levantar servicio RAG + API + PWA
+scripts/run-dev.sh
+
+# 3. Abrir la PWA en http://localhost:8080
 ```
+
+Para inferencia LLM real, correr un `llama-server` (llama.cpp) aparte y exportar
+`SM_LLM_URL` — ver [`api/README.md`](api/README.md#motores-llm).
 
 ## Licencias
 

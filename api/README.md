@@ -1,7 +1,7 @@
 # api/ — Servidor API local (Capa 4)
 
-Servidor HTTP en Rust/Axum que corre en el dispositivo. Orquesta el motor LLM
-(Capa 3), expone una API local y sirve la PWA (`../pwa`).
+Servidor HTTP en Rust/Axum que corre en el dispositivo. Orquesta el flujo RAG +
+LLM, expone una API local y sirve la PWA (`../pwa`).
 
 ## Correr
 
@@ -9,36 +9,72 @@ Servidor HTTP en Rust/Axum que corre en el dispositivo. Orquesta el motor LLM
 cargo run
 ```
 
-Por defecto escucha en `0.0.0.0:8080` y sirve la PWA desde `../pwa`.
+Por defecto escucha en `0.0.0.0:8080` y sirve la PWA desde `../pwa`. Para el
+flujo completo necesita el servicio RAG (`../rag/service.py`) y, opcionalmente,
+un `llama-server`.
 
 ## Variables de entorno
 
-| Variable        | Default     | Descripción                              |
-|-----------------|-------------|------------------------------------------|
-| `SM_PORT`       | `8080`      | Puerto HTTP.                             |
-| `SM_PWA_DIR`    | `../pwa`    | Carpeta de la PWA a servir como estática. |
-| `SM_MODEL_PATH` | *(vacío)*   | Ruta al modelo GGUF (aún no usada).      |
-| `RUST_LOG`      | `info`      | Nivel de logging (`tracing`).            |
+| Variable        | Default                   | Descripción                                   |
+|-----------------|---------------------------|-----------------------------------------------|
+| `SM_PORT`       | `8080`                    | Puerto HTTP.                                  |
+| `SM_PWA_DIR`    | `../pwa`                  | Carpeta de la PWA servida como estática.      |
+| `SM_RAG_URL`    | `http://127.0.0.1:8090`   | URL del servicio RAG.                         |
+| `SM_RAG_TOP_K`  | `4`                       | Fragmentos a recuperar por consulta.          |
+| `SM_LLM_URL`    | *(vacío)*                 | URL de un `llama-server`. Vacío → motor stub. |
+| `SM_LLM_MODEL`  | `qwen2.5-3b-instruct`     | Nombre de modelo enviado al `llama-server`.   |
+| `RUST_LOG`      | `info`                    | Nivel de logging.                             |
 
 ## Endpoints
 
-| Método | Ruta          | Descripción                                  |
-|--------|---------------|----------------------------------------------|
-| GET    | `/api/health` | Estado del servidor, uptime y motor LLM.     |
-| POST   | `/api/chat`   | Envía un mensaje al LLM. Body: `{"message": "..."}`. |
-| GET    | `/*`          | Archivos estáticos de la PWA.                |
+| Método | Ruta          | Descripción                                       |
+|--------|---------------|---------------------------------------------------|
+| GET    | `/api/health` | Estado del servidor, uptime y motor LLM.          |
+| POST   | `/api/chat`   | Flujo RAG + LLM. Body: `{"message": "..."}`.      |
+| GET    | `/*`          | Archivos estáticos de la PWA.                     |
+
+`POST /api/chat` recupera contexto del corpus vía el servicio RAG, se lo pasa
+al motor LLM y devuelve `{reply, model, sources}`. Si el servicio RAG no está
+disponible, responde igual pero sin contexto (degradación elegante).
 
 ### Ejemplo
 
 ```sh
-curl localhost:8080/api/health
 curl -X POST localhost:8080/api/chat \
   -H 'content-type: application/json' \
   -d '{"message":"¿cómo purifico agua?"}'
 ```
 
-## Motor LLM
+## Motores LLM
 
-Hoy el motor es `StubEngine` (`src/llm/stub.rs`): devuelve respuestas
-simuladas. La integración real con llama.cpp + Qwen 2.5 3B y el corpus RAG se
-hará detrás del trait `LlmEngine` (`src/llm/mod.rs`) sin tocar las rutas.
+Detrás del trait `LlmEngine` (`src/llm/mod.rs`):
+
+- **`StubEngine`** (default) — respuestas simuladas; confirma que la API y el
+  RAG funcionan sin necesidad de un modelo.
+- **`LlamaServerEngine`** — cliente de un `llama-server` (llama.cpp) con API
+  compatible OpenAI. Se activa definiendo `SM_LLM_URL`.
+
+Para inferencia real, correr aparte:
+
+```sh
+llama-server -m qwen2.5-3b-instruct-q4_k_m.gguf --port 9001
+# y arrancar la API con SM_LLM_URL=http://127.0.0.1:9001
+```
+
+## Estructura
+
+```
+src/
+├── main.rs           arranque, router, capas tower-http
+├── config.rs         configuración desde entorno
+├── state.rs          estado compartido; selección de motor LLM
+├── rag.rs            cliente HTTP del servicio RAG
+├── llm/
+│   ├── mod.rs        trait LlmEngine, system prompt, armado de contexto
+│   ├── stub.rs       StubEngine
+│   └── llama_server.rs  LlamaServerEngine
+└── routes/
+    ├── mod.rs        router
+    ├── health.rs     GET /api/health
+    └── chat.rs       POST /api/chat (flujo RAG + LLM)
+```
